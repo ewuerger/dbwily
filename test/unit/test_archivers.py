@@ -1,8 +1,7 @@
 import pathlib
+from unittest.mock import patch
 
 import pytest
-from mock import patch
-
 import wily.archivers
 import wily.archivers.git as git
 import wily.config

@@ -1,9 +1,9 @@
 import sys
-from mock import patch
 import tempfile
-from click.testing import CliRunner
+from unittest.mock import patch
 
 import wily.__main__ as main
+from click.testing import CliRunner
 
 _path = "src\\test.py" if sys.platform == "win32" else "src/test.py"
 

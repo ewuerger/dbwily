@@ -1,7 +1,8 @@
 """
 Tests for the cyclomatic complexity operator's ability to handle bad data from radon.
 """
-import mock
+import unittest.mock as mock
+
 import wily.operators.cyclomatic
 from wily.config import DEFAULT_CONFIG
 
