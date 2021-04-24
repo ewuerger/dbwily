@@ -18,6 +18,8 @@ from wily.lang import _
 from wily.operators import BAD_COLORS, GOOD_COLORS, resolve_metric_as_tuple
 from wily.state import State
 
+Number = T.Union[int, float]
+
 
 def report(
     config: WilyConfig,
@@ -147,14 +149,14 @@ def report(
 
 
 def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
-    now = f"{val:n}" if isinstance(val, int) else f"{val}"
-    then = f"({last_val:n})" if isinstance(last_val, int) else f"({last_val})"
+    now = f"{val:n}" if isinstance(val, Number) else f"{val}"
+    then = f"({last_val:n})" if isinstance(last_val, Number) else f"({last_val})"
     return " ".join((now, then))
 
 
 def _plant_delta_color(color: int, change: T.Union[str, int]) -> str:
-    end = f"{change:n}\u001b[0m" if isinstance(change, int) else f"{change}\u001b[0m"
-    if isinstance(change, int) and change > 0:
+    end = f"{change:n}\u001b[0m" if isinstance(change, Number) else f"{change}\u001b[0m"
+    if isinstance(change, Number) and change > 0:
         end = "+" + end
     return "".join((f"\u001b[{color}m", end))
 
