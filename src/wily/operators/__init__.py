@@ -3,6 +3,7 @@
 from collections import namedtuple
 from enum import Enum
 from functools import lru_cache
+
 from wily.lang import _
 
 
@@ -15,13 +16,11 @@ class MetricType(Enum):
 
 
 Metric = namedtuple("Metric", "name description type measure aggregate")
-
 GOOD_COLORS = {
-    MetricType.AimHigh: 32,
-    MetricType.AimLow: 31,
-    MetricType.Informational: 33,
+    MetricType.AimHigh: 32,  # green
+    MetricType.AimLow: 31,  # red
+    MetricType.Informational: 33,  # yellow
 }
-
 BAD_COLORS = {
     MetricType.AimHigh: 31,
     MetricType.AimLow: 32,
@@ -71,10 +70,9 @@ class BaseOperator(object):
 
 
 from wily.operators.cyclomatic import CyclomaticComplexityOperator
+from wily.operators.halstead import HalsteadOperator
 from wily.operators.maintainability import MaintainabilityIndexOperator
 from wily.operators.raw import RawMetricsOperator
-from wily.operators.halstead import HalsteadOperator
-
 
 """Type for an operator."""
 Operator = namedtuple("Operator", "name cls description level")

@@ -7,6 +7,7 @@ class ReportFormat(Enum):
 
     CONSOLE = 1
     HTML = 2
+    JSON = 3
 
     @classmethod
     def get_all(cls):
