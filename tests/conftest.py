@@ -1,14 +1,12 @@
 import pathlib
-from textwrap import dedent
 import shutil
 import tempfile
-from time import time
+from textwrap import dedent
 
 import pytest
-from click.testing import CliRunner
-from git import Repo, Actor
-
 import wily.__main__ as main
+from click.testing import CliRunner
+from git import Actor, Repo
 
 
 @pytest.fixture
@@ -41,7 +39,7 @@ def gitdir(tmpdir):
     foo = 1
     def function1():
         a = 1 + 1
-    
+
     class Class1(object):
         def method(self):
             b = 1 + 5

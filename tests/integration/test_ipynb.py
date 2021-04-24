@@ -1,7 +1,7 @@
 import sys
-from click.testing import CliRunner
 
 import wily.__main__ as main
+from click.testing import CliRunner
 
 _path = "src\\test.ipynb" if sys.platform == "win32" else "src/test.ipynb"
 
