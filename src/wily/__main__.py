@@ -1,22 +1,23 @@
 # -*- coding: UTF-8 -*-
 """Main command line."""
 
-import click
 import traceback
 from pathlib import Path
 
-from wily import logger, __version__, WILY_LOG_NAME
+import click
+
+from wily import WILY_LOG_NAME, __version__, logger
 from wily.archivers import resolve_archiver
 from wily.cache import exists, get_default_metrics
 from wily.config import DEFAULT_CONFIG_PATH, DEFAULT_GRID_STYLE
 from wily.config import load as load_config
 from wily.helper.custom_enums import ReportFormat
-from wily.operators import resolve_operators
 from wily.lang import _
+from wily.operators import resolve_operators
 
 version_text = _("Version: ") + __version__ + "\n\n"
 help_header = version_text + _(
-"""\U0001F98A Inspect and search through the complexity of your source code.
+    """\U0001F98A Inspect and search through the complexity of your source code.
 To get started, run setup:
 
   $ wily setup
@@ -33,12 +34,17 @@ You can also graph specific metrics in a browser with:
 
   $ wily graph <file> <metric>
   
-""")
+"""
+)
+
 
 @click.group(help=help_header)
 @click.version_option(
-    __version__, "-V", "--version", message="\U0001F98A %(prog)s, {version} %(version)s".format(version=_("version")),
-    help=_("Show the version and exit.")
+    __version__,
+    "-V",
+    "--version",
+    message="\U0001F98A %(prog)s, {version} %(version)s".format(version=_("version")),
+    help=_("Show the version and exit."),
 )
 @click.help_option(help=_("Show this message and exit."))
 @click.option(
@@ -136,7 +142,9 @@ def build(ctx, max_revisions, targets, operators, archiver):
         operators=resolve_operators(config.operators),
     )
     logger.info(
-        _("Completed building wily history, run `wily report <file>` or `wily index` to see more.")
+        _(
+            "Completed building wily history, run `wily report <file>` or `wily index` to see more."
+        )
     )
 
 
@@ -157,7 +165,9 @@ def index(ctx, message):
     index(config=config, include_message=message)
 
 
-@cli.command(help = _("""
+@cli.command(
+    help=_(
+        """
     Rank files, methods and functions in order of any metrics, e.g. complexity.
 
     Some common examples:
@@ -174,13 +184,17 @@ def index(ctx, message):
     and return a non-zero exit code if the total is below the given threshold
 
         $ wily rank --threshold=80
-    """))
+    """
+    )
+)
 @click.argument("path", type=click.Path(resolve_path=False), required=False)
 @click.argument("metric", required=False, default="maintainability.mi")
 @click.option(
     "-r", "--revision", help=_("Compare against specific revision"), type=click.STRING
 )
-@click.option("-l", "--limit", help=_("Limit the number of results shown"), type=click.INT)
+@click.option(
+    "-l", "--limit", help=_("Limit the number of results shown"), type=click.INT
+)
 @click.option(
     "--desc/--asc",
     help=_("Order to show results (ascending or descending)"),
@@ -224,16 +238,20 @@ def rank(ctx, path, metric, revision, limit, desc, threshold):
     "-f",
     "--format",
     default=ReportFormat.CONSOLE.name,
-    help=_("Specify report format (console or html)"),
+    help=_("Specify report format (CONSOLE, HTML or JSON)"),
     type=click.Choice(ReportFormat.get_all()),
 )
 @click.option(
     "--console-format",
     default=DEFAULT_GRID_STYLE,
-    help=_("Style for the console grid, see Tabulate Documentation for a list of styles."),
+    help=_(
+        "Style for the console grid, see Tabulate Documentation for a list of styles."
+    ),
 )
 @click.option(
-    "-o", "--output", help=_("Output report to specified HTML path, e.g. reports/out.html")
+    "-o",
+    "--output",
+    help=_("Output report to specified HTML path, e.g. reports/out.html"),
 )
 @click.pass_context
 def report(ctx, file, metrics, number, message, format, console_format, output):
@@ -320,7 +338,9 @@ def diff(ctx, files, metrics, all, detail, revision):
     )
 
 
-@cli.command(help=_("""
+@cli.command(
+    help=_(
+        """
     Graph a specific metric for a given file, if a path is given, all files within path will be graphed.
 
     Some common examples:
@@ -336,11 +356,15 @@ def diff(ctx, files, metrics, all, detail, revision):
     Graph test.py against raw.loc and raw.sloc on the x-axis
 
         $ wily graph src/test.py raw.loc --x-axis raw.sloc
-    """))
+    """
+    )
+)
 @click.argument("path", type=click.Path(resolve_path=False))
 @click.argument("metrics", nargs=-2, required=True)
 @click.option(
-    "-o", "--output", help=_("Output report to specified HTML path, e.g. reports/out.html")
+    "-o",
+    "--output",
+    help=_("Output report to specified HTML path, e.g. reports/out.html"),
 )
 @click.option("-x", "--x-axis", help=_("Metric to use on x-axis, defaults to history."))
 @click.option(
