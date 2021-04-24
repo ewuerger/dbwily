@@ -154,6 +154,8 @@ def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
 
 def _plant_delta_color(color: int, change: T.Union[str, int]) -> str:
     end = f"{change:n}\u001b[0m" if isinstance(change, int) else f"{change}\u001b[0m"
+    if isinstance(change, int) and change > 0:
+        end = "+" + end
     return "".join((f"\u001b[{color}m", end))
 
 
