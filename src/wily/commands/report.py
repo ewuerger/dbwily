@@ -147,7 +147,7 @@ def report(
 
 
 def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
-    now = f"{val:n}" if isinstance(last_val, int) else f"{val}"
+    now = f"{val:n}" if isinstance(val, int) else f"{val}"
     then = f"({last_val:n})" if isinstance(last_val, int) else f"({last_val})"
     return " ".join((now, then))
 
