@@ -150,9 +150,9 @@ def report(
 
 
 def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
-    now = f"{val:n}" if isinstance(val, int) or isinstance(val, float) else f"{val}"
+    now = f"{val:.2f}" if isinstance(val, int) or isinstance(val, float) else f"{val}"
     then = (
-        f"({last_val:n})"
+        f"({last_val:.2f})"
         if isinstance(last_val, int) or isinstance(last_val, float)
         else f"({last_val})"
     )
@@ -161,7 +161,7 @@ def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
 
 def _plant_delta_color(color: int, change: T.Union[str, int]) -> str:
     end = (
-        f"{change:n}\u001b[0m"
+        f"{change:.2f}\u001b[0m"
         if isinstance(change, int) or isinstance(change, float)
         else f"{change}\u001b[0m"
     )
