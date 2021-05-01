@@ -86,14 +86,17 @@ def report(
                         f"Fetching metric {meta['key']} for {meta['operator']} in {path}"
                     )
                     val = rev.get(config, archiver, meta["operator"], path, meta["key"])
-                    last_val: T.Union[str, int] = last.get(meta["key"], None)
+                    last_val = last.get(meta["key"], None)
                     # Measure the difference between this value and the last
                     if meta["type"] in (int, float):
                         delta = val - last_val if last_val else 0
                         change = delta
-                    else:
-                        delta = ord(last_val) - ord(val) if last_val else 0
+                    elif last_val:
+                        delta = ord(last_val) - ord(val) if last_val != val else 1
                         change = last_val
+                    else:
+                        delta = 1
+                        change = val
 
                     last[meta["key"]] = val
                     if delta == 0:
@@ -232,7 +235,7 @@ def generate_json_report(
     report_path, report_output = _check_output(output, ".json")
     metric_data = dict(zip(headers, data[-1]))
     metric_data["location"] = str(path)
-    report_json_string = dumps(dict(issues=[]))
+    report_json_string = dumps(dict(issues=[metric_data]))
     report_output.write_text(report_json_string)
 
     logger.info(f"wily report on {str(path)} was saved to {report_path}")
