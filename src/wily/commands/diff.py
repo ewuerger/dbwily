@@ -9,7 +9,7 @@ from pathlib import Path
 
 import radon.cli.harvest
 import tabulate
-from wily import format_date, format_revision, logger
+from wily import format_date, format_delta, format_revision, logger
 from wily.archivers import resolve_archiver
 from wily.commands.build import run_operator
 from wily.config import DEFAULT_GRID_STYLE, DEFAULT_PATH
@@ -72,12 +72,15 @@ def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
             target_revision = state.index[state.default_archiver][rev.key]
         except KeyError:
             logger.error(
-                f"Revision {revision} is not in the cache, make sure you have run wily build."
+                f"Revision {revision} is not in the cache, make sure you have run "
+                "wily build."
             )
             exit(1)
 
     logger.info(
-        f"Comparing current with {format_revision(target_revision.revision.key)} by {target_revision.revision.author_name} on {format_date(target_revision.revision.date)}."
+        f"Comparing current with {format_revision(target_revision.revision.key)} by "
+        f"{target_revision.revision.author_name} on "
+        f"{format_date(target_revision.revision.date)}."
     )
 
     # Convert the list of metrics to a list of metric instances
@@ -112,6 +115,7 @@ def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
                     logger.debug(f"File {file} not in cache")
                     logger.debug("Cache follows -- ")
                     logger.debug(data[operator])
+
     files.extend(extra)
     logger.debug(files)
     for file in files:
@@ -124,32 +128,33 @@ def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
                 )
             except KeyError:
                 current = "-"
+
             try:
                 new = get_metric(data, operator, file, metric.name)
             except KeyError:
                 new = "-"
+
             if new != current:
                 has_changes = True
-            if metric.type in (int, float) and new != "-" and current != "-":
-                if current > new:
-                    metrics_data.append(
-                        "{0:.2f} -> \u001b[{2}m{1:.2f}\u001b[0m".format(
-                            current, new, BAD_COLORS[metric.measure]
-                        )
-                    )
-                elif current < new:
-                    metrics_data.append(
-                        "{0:n} -> \u001b[{2}m{1:.2f}\u001b[0m".format(
-                            current, new, GOOD_COLORS[metric.measure]
-                        )
-                    )
+
+            _form = lambda x: x if x == "-" else format_delta(x)
+            currents = _form(current)
+            news = _form(new)
+            if new != "-" and current != "-":
+                if current == new:
+                    metrics_data.append(f"{currents} -> {news}")
                 else:
-                    metrics_data.append("{0:.2f} -> {1:.2f}".format(current, new))
+                    color = (
+                        BAD_COLORS[metric.measure]
+                        if current > new
+                        else GOOD_COLORS[metric.measure]
+                    )
+                    metrics_data.append(f"{currents} -> \u001b[{color}m{news}\u001b[0m")
+            elif current == "-" and new == "-":
+                metrics_data.append("-")
             else:
-                if current == "-" and new == "-":
-                    metrics_data.append("-")
-                else:
-                    metrics_data.append("{0} -> {1}".format(current, new))
+                metrics_data.append(f"{currents} -> {news}")
+
         if has_changes or not changes_only:
             results.append((file, *metrics_data))
         else:

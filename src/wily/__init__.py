@@ -39,6 +39,8 @@ A Python application for tracking, reporting on timing and complexity in tests a
 import datetime
 import logging
 import tempfile
+import typing as T
+from functools import singledispatch
 
 import colorlog
 
@@ -68,6 +70,27 @@ def format_date(timestamp):
 def format_datetime(timestamp):
     """Reusable timestamp -> datetime."""
     return datetime.datetime.fromtimestamp(timestamp).isoformat()
+
+
+@singledispatch
+def format_delta(val: T.Union[str, int, float]) -> str:
+    """Generic delta formatting"""
+    return NotImplemented
+
+
+@format_delta.register
+def _from_str(val: str) -> str:
+    return f"{val}"
+
+
+@format_delta.register
+def _from_int(val: int) -> str:
+    return f"{val:n}"
+
+
+@format_delta.register
+def _from_float(val: float) -> str:
+    return f"{val:.2f}"
 
 
 def format_revision(sha):
