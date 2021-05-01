@@ -136,7 +136,7 @@ def report(
         headers = (_("Revision"), _("Author"), _("Date"), *descriptions)
 
     if format in FORMAT_MAP:
-        FORMAT_MAP[format](output, data, headers)
+        FORMAT_MAP[format](path, output, data, headers)
         return
 
     print(
@@ -162,17 +162,18 @@ def _plant_delta_color(color: int, change: T.Union[str, int]) -> str:
         if isinstance(change, int) or isinstance(change, float)
         else f"{change}\u001b[0m"
     )
-    if isinstance(change, int) or isinstance(change, float) and change > 0:
+    if (isinstance(change, int) or isinstance(change, float)) and change > 0:
         end = "+" + end
     return "".join((f"\u001b[{color}m", end))
 
 
 def generate_html_report(
-    output: Path, data: T.List[T.Tuple[str]], headers: T.Tuple[str]
+    path: Path, output: Path, data: T.List[T.Tuple[str]], headers: T.Tuple[str]
 ) -> None:
     """
-    Make HTML report from metrics data.
+    Make an HTML report from metrics data for codefile/dir found on path.
 
+    :param path: Path to measured file/dir
     :param output: Destination path
     :param data: List of data-tuples
     :param headers: Tuples of header-strings for the metrics table
@@ -203,7 +204,7 @@ def generate_html_report(
     except FileExistsError:
         pass
 
-    logger.info(f"wily report was saved to {report_path}")
+    logger.info(f"wily report on {str(path)} was saved to {report_path}")
 
 
 def _check_output(output: Path, file_ending: str = ".html") -> T.Tuple[Path, Path]:
@@ -218,20 +219,23 @@ def _check_output(output: Path, file_ending: str = ".html") -> T.Tuple[Path, Pat
 
 
 def generate_json_report(
-    output: Path, data: T.List[T.Tuple[str]], headers: T.Tuple[str]
+    path: Path, output: Path, data: T.List[T.Tuple[str]], headers: T.Tuple[str]
 ) -> None:
     """
-    Make JSON file of report of latest commit.
+    Make a JSON file of report of latest commit for codefile/dir found on path.
 
+    :param path: Path to measured file/dir
     :param output: Destination path
     :param data: List of data-tuples
     :param headers: Tuples of names of metrics
     """
     report_path, report_output = _check_output(output, ".json")
-    report_json_string = dumps(dict(issues=[dict(zip(headers, data[-1]))]))
+    metric_data = dict(zip(headers, data[-1]))
+    metric_data["location"] = str(path)
+    report_json_string = dumps(dict(issues=[]))
     report_output.write_text(report_json_string)
 
-    logger.info(f"wily report was saved to {report_path}")
+    logger.info(f"wily report on {str(path)} was saved to {report_path}")
 
 
 FORMAT_MAP = {
