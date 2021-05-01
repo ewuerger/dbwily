@@ -133,18 +133,18 @@ def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
             if metric.type in (int, float) and new != "-" and current != "-":
                 if current > new:
                     metrics_data.append(
-                        "{0:n} -> \u001b[{2}m{1:n}\u001b[0m".format(
+                        "{0:.2f} -> \u001b[{2}m{1:.2f}\u001b[0m".format(
                             current, new, BAD_COLORS[metric.measure]
                         )
                     )
                 elif current < new:
                     metrics_data.append(
-                        "{0:n} -> \u001b[{2}m{1:n}\u001b[0m".format(
+                        "{0:n} -> \u001b[{2}m{1:.2f}\u001b[0m".format(
                             current, new, GOOD_COLORS[metric.measure]
                         )
                     )
                 else:
-                    metrics_data.append("{0:n} -> {1:n}".format(current, new))
+                    metrics_data.append("{0:.2f} -> {1:.2f}".format(current, new))
             else:
                 if current == "-" and new == "-":
                     metrics_data.append("-")
