@@ -5,13 +5,14 @@ The report command gives a table of metrics for a specified list of files.
 Will compare the values between revisions and highlight changes in green/red.
 """
 import typing as T
+from functools import singledispatch
 from json import dumps
 from pathlib import Path
 from shutil import copytree
 from string import Template
 
 import tabulate
-from wily import MAX_MESSAGE_WIDTH, format_date, format_revision, logger
+from wily import MAX_MESSAGE_WIDTH, format_date, format_delta, format_revision, logger
 from wily.config import WilyConfig
 from wily.helper.custom_enums import ReportFormat
 from wily.lang import _
@@ -26,9 +27,9 @@ def report(
     n: int,
     output: Path,
     include_message: bool = False,
-    format: T.Literal[ReportFormat] = ReportFormat.CONSOLE,
+    format: ReportFormat = ReportFormat.CONSOLE,
     console_format: str = None,
-):
+) -> None:
     """
     Show information about the cache and runtime.
 
@@ -150,24 +151,17 @@ def report(
 
 
 def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
-    now = f"{val:.2f}" if isinstance(val, int) or isinstance(val, float) else f"{val}"
-    then = (
-        f"({last_val:.2f})"
-        if isinstance(last_val, int) or isinstance(last_val, float)
-        else f"({last_val})"
-    )
-    return " ".join((now, then))
+    now = format_delta(val)
+    then = format_delta(last_val)
+    return " ".join((now, f"({then})"))
 
 
 def _plant_delta_color(color: int, change: T.Union[str, int]) -> str:
-    end = (
-        f"{change:.2f}\u001b[0m"
-        if isinstance(change, int) or isinstance(change, float)
-        else f"{change}\u001b[0m"
-    )
+    end = format_delta(change)
     if (isinstance(change, int) or isinstance(change, float)) and change > 0:
         end = "+" + end
-    return "".join((f"\u001b[{color}m", end))
+
+    return "".join((f"\u001b[{color}m", f"{end}\u001b[0m"))
 
 
 def generate_html_report(
