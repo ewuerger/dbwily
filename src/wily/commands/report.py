@@ -18,8 +18,6 @@ from wily.lang import _
 from wily.operators import BAD_COLORS, GOOD_COLORS, resolve_metric_as_tuple
 from wily.state import State
 
-Number = T.Union[int, float]
-
 
 def report(
     config: WilyConfig,
@@ -149,14 +147,22 @@ def report(
 
 
 def _plant_delta(val: T.Union[str, int], last_val: T.Union[str, int]) -> str:
-    now = f"{val:n}" if isinstance(val, Number) else f"{val}"
-    then = f"({last_val:n})" if isinstance(last_val, Number) else f"({last_val})"
+    now = f"{val:n}" if isinstance(val, int) or isinstance(val, float) else f"{val}"
+    then = (
+        f"({last_val:n})"
+        if isinstance(last_val, int) or isinstance(last_val, float)
+        else f"({last_val})"
+    )
     return " ".join((now, then))
 
 
 def _plant_delta_color(color: int, change: T.Union[str, int]) -> str:
-    end = f"{change:n}\u001b[0m" if isinstance(change, Number) else f"{change}\u001b[0m"
-    if isinstance(change, Number) and change > 0:
+    end = (
+        f"{change:n}\u001b[0m"
+        if isinstance(change, int) or isinstance(change, float)
+        else f"{change}\u001b[0m"
+    )
+    if isinstance(change, int) or isinstance(change, float) and change > 0:
         end = "+" + end
     return "".join((f"\u001b[{color}m", end))
 
@@ -222,7 +228,7 @@ def generate_json_report(
     :param headers: Tuples of names of metrics
     """
     report_path, report_output = _check_output(output, ".json")
-    report_json_string = dumps(dict(issues=list(dict(zip(headers, data[-1])))))
+    report_json_string = dumps(dict(issues=[dict(zip(headers, data[-1]))]))
     report_output.write_text(report_json_string)
 
     logger.info(f"wily report was saved to {report_path}")
