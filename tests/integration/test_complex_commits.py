@@ -2,13 +2,13 @@
 Integration tests that will create a repository with multiple files
 and test the skipping of unchanged files does not impact the index.
 """
-import sys
-import pathlib
 import json
-from click.testing import CliRunner
-from git import Repo, Actor
+import pathlib
+import sys
 
 import wily.__main__ as main
+from click.testing import CliRunner
+from git import Actor, Repo
 
 _path1 = "src\\test1.py" if sys.platform == "win32" else "src/test1.py"
 _path2 = "src\\test2.py" if sys.platform == "win32" else "src/test2.py"

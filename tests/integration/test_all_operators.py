@@ -3,15 +3,14 @@ Parameterised tests for each operator (and some combinations).
 
 Build them and test out some of the metrics/commands work correctly.
 """
-import pytest
-import sys
-from click.testing import CliRunner
 import pathlib
+import sys
 from textwrap import dedent
 
-from git import Repo, Actor
-
+import pytest
 import wily.__main__ as main
+from click.testing import CliRunner
+from git import Actor, Repo
 
 _path = "src\\test.py" if sys.platform == "win32" else "src/test.py"
 

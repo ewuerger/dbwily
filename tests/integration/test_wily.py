@@ -1,8 +1,7 @@
 import pathlib
 
-from click.testing import CliRunner
-
 import wily.__main__ as main
+from click.testing import CliRunner
 
 
 def test_list_metrics(builddir):

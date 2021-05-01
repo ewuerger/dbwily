@@ -1,6 +1,6 @@
-import pytest
 import os.path
 
+import pytest
 import wily.config
 
 

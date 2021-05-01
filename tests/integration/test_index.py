@@ -1,6 +1,5 @@
-from click.testing import CliRunner
-
 import wily.__main__ as main
+from click.testing import CliRunner
 
 
 def test_index_no_cache(tmpdir, cache_path):

@@ -2,7 +2,6 @@
 This is really an integration test.
 """
 import pytest
-
 import wily.config
 import wily.state
 

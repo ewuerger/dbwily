@@ -2,9 +2,8 @@ import pathlib
 import sys
 from textwrap import dedent
 
-from click.testing import CliRunner
-
 import wily.__main__ as main
+from click.testing import CliRunner
 
 _path = "src\\test.py" if sys.platform == "win32" else "src/test.py"
 

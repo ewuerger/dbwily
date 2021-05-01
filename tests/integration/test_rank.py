@@ -1,6 +1,5 @@
-from click.testing import CliRunner
-
 import wily.__main__ as main
+from click.testing import CliRunner
 from git import Actor, Repo
 
 

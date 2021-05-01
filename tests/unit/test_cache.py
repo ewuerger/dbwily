@@ -1,11 +1,11 @@
 import json
 import pathlib
 import sys
-import pytest
 
+import pytest
 import wily.cache as cache
 from wily.archivers import Revision
-from wily.config import DEFAULT_CONFIG, ARCHIVER_GIT
+from wily.config import ARCHIVER_GIT, DEFAULT_CONFIG
 
 
 def test_exists(tmpdir):
@@ -41,7 +41,7 @@ def test_not_exists():
 
 
 def test_get_default_metrics_empty(tmpdir):
-    """ 
+    """
     Test that get_metrics goes ok with an empty index
     """
     config = DEFAULT_CONFIG
