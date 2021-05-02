@@ -5,7 +5,6 @@ The report command gives a table of metrics for a specified list of files.
 Will compare the values between revisions and highlight changes in green/red.
 """
 import typing as T
-from functools import singledispatch
 from json import dumps
 from pathlib import Path
 from shutil import copytree
