@@ -219,9 +219,10 @@ def generate_json_diff(
         metric_data["issues"].append(issue)
 
         funcs = [t for t in data if t[0].startswith(file) and t[0] != file]
-        issue = dict(zip(["Function", *headers[1:]], tup) for tup in funcs)
-        issue["location"] = file
-        metric_data["issues"].append(issue)
+        for tup in funcs:
+            issue = dict(zip(["Function", *headers[1:]], tup))
+            issue["location"] = file
+            metric_data["issues"].append(issue)
 
     report_json_string = dumps(metric_data)
     report_output.write_text(report_json_string)
