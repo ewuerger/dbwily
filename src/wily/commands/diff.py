@@ -137,7 +137,12 @@ def diff(
 
     files.extend(extra)
     logger.debug(files)
+    cache = []
     for file in files:
+        if file in cache:
+            break
+
+        cache.append(file)
         metrics_data = []
         has_changes = False
         for operator, metric in metrics:
@@ -213,7 +218,6 @@ def generate_json_diff(
     metric_data = dict(issues=[])
     for filet in files:
         file = filet[0]
-
         issue = dict(zip(headers, filet))
         issue["location"] = file
         metric_data["issues"].append(issue)
