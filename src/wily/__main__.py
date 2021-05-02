@@ -310,8 +310,21 @@ def report(ctx, file, metrics, number, message, format, console_format, output):
 @click.option(
     "-r", "--revision", help=_("Compare against specific revision"), type=click.STRING
 )
+@click.option(
+    "-f",
+    "--format",
+    default=ReportFormat.CONSOLE.name,
+    help=_("Specify report format (CONSOLE or JSON)"),
+    type=click.Choice([ReportFormat.CONSOLE.name, ReportFormat.JSON.name]),
+)
+@click.option(
+    "-o",
+    "--output",
+    help=_("Output report to specified JSON path, e.g. reports/out.json"),
+    default=None,
+)
 @click.pass_context
-def diff(ctx, files, metrics, all, detail, revision):
+def diff(ctx, files, metrics, all, detail, revision, format, output):
     """Show the differences in metrics for each file."""
     config = ctx.obj["CONFIG"]
 
@@ -325,16 +338,22 @@ def diff(ctx, files, metrics, all, detail, revision):
         metrics = metrics.split(",")
         logger.info(f"Using specified metrics {metrics}")
 
+    new_output = output if output is None else Path().cwd() / Path(output)
+
     from wily.commands.diff import diff
 
     logger.debug(f"Running diff on {files} for metric {metrics}")
+    logger.debug(f"Output format is {format}")
+
     diff(
         config=config,
         files=files,
         metrics=metrics,
         changes_only=not all,
         detail=detail,
+        output=new_output,
         revision=revision,
+        format=ReportFormat[format],
     )
 
 

@@ -11,7 +11,9 @@ from shutil import copytree
 from string import Template
 
 import tabulate
-from wily import MAX_MESSAGE_WIDTH, format_date, format_delta, format_revision, logger
+from wily import (MAX_MESSAGE_WIDTH, format_date, format_delta,
+                  format_revision, logger)
+from wily.commands import check_output
 from wily.config import WilyConfig
 from wily.helper.custom_enums import ReportFormat
 from wily.lang import _
@@ -174,7 +176,7 @@ def generate_html_report(
     :param data: List of data-tuples
     :param headers: Tuples of header-strings for the metrics table
     """
-    report_path, report_output = _check_output(output)
+    report_path, report_output = check_output(output)
     templates_dir = (Path(__file__).parents[1] / "templates").resolve()
     report_template = Template((templates_dir / "report_template.html").read_text())
 
@@ -203,17 +205,6 @@ def generate_html_report(
     logger.info(f"wily report on {str(path)} was saved to {report_path}")
 
 
-def _check_output(output: Path, file_ending: str = ".html") -> T.Tuple[Path, Path]:
-    if output.is_file and output.suffix == file_ending:
-        report_path = output.parents[0]
-        report_output = output
-    else:
-        report_path = output
-        report_output = output.joinpath("index" + file_ending)
-    report_path.mkdir(exist_ok=True, parents=True)
-    return report_path, report_output
-
-
 def generate_json_report(
     path: Path, output: Path, data: T.List[T.Tuple[str]], headers: T.Tuple[str]
 ) -> None:
@@ -225,7 +216,7 @@ def generate_json_report(
     :param data: List of data-tuples
     :param headers: Tuples of names of metrics
     """
-    report_path, report_output = _check_output(output, ".json")
+    report_path, report_output = check_output(output, ".json")
     metric_data = dict(zip(headers, data[-1]))
     metric_data["location"] = str(path)
     report_json_string = dumps(dict(issues=[metric_data]))

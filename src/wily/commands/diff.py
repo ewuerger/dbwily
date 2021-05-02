@@ -5,14 +5,18 @@ Compares metrics between uncommitted files and indexed files.
 """
 import multiprocessing
 import os
+import typing as T
+from json import dumps
 from pathlib import Path
 
 import radon.cli.harvest
 import tabulate
 from wily import format_date, format_delta, format_revision, logger
 from wily.archivers import resolve_archiver
+from wily.commands import check_output
 from wily.commands.build import run_operator
-from wily.config import DEFAULT_GRID_STYLE, DEFAULT_PATH
+from wily.config import DEFAULT_GRID_STYLE, DEFAULT_PATH, WilyConfig
+from wily.helper.custom_enums import ReportFormat
 from wily.operators import (
     BAD_COLORS,
     GOOD_COLORS,
@@ -24,7 +28,16 @@ from wily.operators import (
 from wily.state import State
 
 
-def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
+def diff(
+    config: WilyConfig,
+    files: T.Iterable[str],
+    metrics: T.Iterable[str],
+    changes_only: bool = True,
+    detail: bool = True,
+    output: Path = None,
+    revision: str = None,
+    format: ReportFormat = ReportFormat.CONSOLE,
+) -> None:
     """
     Show the differences in metrics for each of the files.
 
@@ -43,11 +56,17 @@ def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
     :param detail: Show details (function-level)
     :type  detail: ``bool``
 
+    :param output: Output path
+    :type  output: ``Path``
+
     :param revision: Compare with specific revision
     :type  revision: ``str``
+
+    :param format: Output format
+    :type  format: ``ReportFormat``
     """
-    config.targets = files
     files = list(files)
+    config.targets = files
     state = State(config)
 
     # Resolve target paths when the cli has specified --path
@@ -160,12 +179,51 @@ def diff(config, files, metrics, changes_only=True, detail=True, revision=None):
         else:
             logger.debug(metrics_data)
 
-    descriptions = [metric.description for operator, metric in metrics]
+    descriptions: T.List[str] = [metric.description for operator, metric in metrics]
     headers = ("File", *descriptions)
     if len(results) > 0:
+        if format == ReportFormat.JSON and output is not None:
+            generate_json_diff(Path(config.path), output, results, headers)
+            return
+
         print(
             # But it still makes more sense to show the newest at the top, so reverse again
             tabulate.tabulate(
                 headers=headers, tabular_data=results, tablefmt=DEFAULT_GRID_STYLE
             )
         )
+
+
+def generate_json_diff(
+    path: Path,
+    output: Path,
+    data: T.List[T.Tuple[str, ...]],
+    headers: T.Tuple[str, ...],
+) -> None:
+    """
+    Make a JSON file of diff of latest commit for codefile/dir found on path.
+
+    :param path: Path to measured file/dir
+    :param output: Destination path
+    :param data: List of data-tuples
+    :param headers: Tuples of names of metrics
+    """
+    report_path, report_output = check_output(output, ".json")
+    files = [t for t in data if ":" not in t[0]]
+    metric_data = dict(issues=[])
+    for filet in files:
+        file = filet[0]
+
+        issue = dict(zip(headers, filet))
+        issue["location"] = file
+        metric_data["issues"].append(issue)
+
+        funcs = [t for t in data if t[0].startswith(file) and t[0] != file]
+        issue = dict(zip(["Function", *headers[1:]], tup) for tup in funcs)
+        issue["location"] = file
+        metric_data["issues"].append(issue)
+
+    report_json_string = dumps(metric_data)
+    report_output.write_text(report_json_string)
+
+    logger.info(f"wily report on {str(path)} was saved to {report_path}")
